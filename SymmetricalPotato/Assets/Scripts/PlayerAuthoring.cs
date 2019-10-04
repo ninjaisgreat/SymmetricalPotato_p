@@ -8,7 +8,10 @@ public class PlayerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
-		PlayerComponent componentData = new PlayerComponent { playerIndex = index };
-		dstManager.AddComponentData(entity, componentData);
+		if (index == 0)
+		{
+			Player0Component componentData = new Player0Component { basicMoveSpeed = 8f, hasRockets = false, hasDash = false };
+			dstManager.AddComponentData(entity, componentData);
+		}
 	}
 }

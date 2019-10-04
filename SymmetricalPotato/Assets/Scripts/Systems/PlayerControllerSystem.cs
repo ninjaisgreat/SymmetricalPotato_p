@@ -4,34 +4,68 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerControllerSystem : JobComponentSystem
+public struct Data
 {
+	public float moveX;
+	public float moveY;
+	public InputMaster actionAsset;
+}
+
+public class Player0ControllerSystem : JobComponentSystem
+{
+	private Data _data;
+
 	[BurstCompile]
-	struct MovementJob : IJobForEach<PlayerComponent, PhysicsVelocity>
+	struct MovementJob : IJobForEach<Player0Component, PhysicsVelocity>
 	{
-		public bool3 pressed;
-		
-		public void Execute( [ReadOnly] ref PlayerComponent playerComponent, ref PhysicsVelocity physicsVelocity)
+		public float moveX;
+		public float moveY;
+
+		public void Execute( [ReadOnly] ref Player0Component playerComponent, ref PhysicsVelocity physicsVelocity)
 		{
-			if (pressed.x) physicsVelocity.Linear.y = 5;
-			if (pressed.y) physicsVelocity.Linear.x = -5;
-			if (pressed.z) physicsVelocity.Linear.x = 5;
+			if (!(playerComponent.hasRockets && playerComponent.hasDash))
+			{
+				if (moveX > 0.4f || moveX < -0.4f)
+				{
+					float3 velocityL = new float3(math.sign(moveX) * playerComponent.basicMoveSpeed, physicsVelocity.Linear.y, 0f);
+					physicsVelocity.Linear = velocityL;
+				}
+			}
 		}
+	}
+
+	protected override void OnCreate()
+	{
+		_data.actionAsset = new InputMaster();
+	}
+
+	protected override void OnStartRunning()
+	{
+		_data.actionAsset.Player0.Enable();
+		_data.actionAsset.Player0.MoveX.performed += ctx => _data.moveX = ctx.ReadValue<float>();
+		_data.actionAsset.Player0.MoveX.canceled += ctx => _data.moveX = 0f;
+		_data.actionAsset.Player0.MoveY.performed += ctx => _data.moveY = ctx.ReadValue<float>();
+		_data.actionAsset.Player0.MoveY.canceled += ctx => _data.moveY = 0f;
+	}
+
+	protected override void OnStopRunning()
+	{
+		_data.actionAsset.Disable();
+		_data.actionAsset.Player0.MoveX.performed -= ctx => _data.moveX = ctx.ReadValue<float>();
+		_data.actionAsset.Player0.MoveX.canceled -= ctx => _data.moveX = 0f;
+		_data.actionAsset.Player0.MoveY.performed -= ctx => _data.moveY = ctx.ReadValue<float>();
+		_data.actionAsset.Player0.MoveY.canceled -= ctx => _data.moveY = 0f;
 	}
 
 	protected override JobHandle OnUpdate(JobHandle inputDeps)
 	{
-		bool3 _pressed;
-		_pressed.x = Keyboard.current.wKey.wasPressedThisFrame;
-		_pressed.y = Keyboard.current.aKey.isPressed;
-		_pressed.z = Keyboard.current.dKey.isPressed;
-
 		var job = new MovementJob {
-			pressed = _pressed
+			moveX = _data.moveX,
+			moveY = _data.moveY
 			}.Schedule(this, inputDeps);
+		
 		return job;
 	}
 }

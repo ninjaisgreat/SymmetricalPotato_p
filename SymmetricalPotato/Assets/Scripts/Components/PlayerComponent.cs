@@ -1,8 +1,9 @@
 ﻿using System;
 using Unity.Entities;
 
-[Serializable]
-public struct PlayerComponent : IComponentData
+public struct Player0Component : IComponentData
 {
-	public int playerIndex;
+	public float basicMoveSpeed;
+	public bool hasRockets;
+	public bool hasDash;
 }
