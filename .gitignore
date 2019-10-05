@@ -10,6 +10,9 @@
 [Ll]ogs/
 [Mm]emoryCaptures/
 
+# Unnecessary .vscode folder
+/SymmetricalPotato/.vscode/
+
 # Never ignore Asset meta data
 ![Aa]ssets/**/*.meta
 
