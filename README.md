@@ -79,7 +79,7 @@ A combination of pixel art and non-pixel art
 # Credits
 - Unity, Brackeys, Sebastian Lague, Blackthornprod, Sykoo, Code Monkey, Infallible Code, and Jason Weimann
 
-- Heather
+- Heather, Gerwyn
 
 &nbsp;
 
